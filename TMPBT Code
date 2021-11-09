@@ -4,7 +4,7 @@
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 #include <SoftwareSerial.h> 
-
+#define aref_voltage 3.3
 #define OLED_reset=4;
 #define SCREEN_ADDRESS 0x3c
 
@@ -13,7 +13,7 @@ int OLED_RESET = 4;
 Adafruit_SSD1306 display(OLED_RESET);
 
 const unsigned char myBitmapMaker [] PROGMEM = {
-  0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
+0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
   0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff,
@@ -88,6 +88,8 @@ const unsigned char myBitmapMaker [] PROGMEM = {
 
 
 
+
+
 int readings = 0;
 float temperature = 0;
 int measurements = 10;
@@ -113,7 +115,7 @@ void setup() {
   display.clearDisplay();
     
 
-  pinMode(A0, INPUT); // Use A0 to measure the temperature sensor's output
+  pinMode(A1, INPUT); // Use A0 to measure the temperature sensor's output
   
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C); // initialize with the I2C addr 0x3C (for the 128x32)
   display.setTextSize(3); // Set the text size
@@ -131,7 +133,7 @@ void loop() {
   
   readings = 0; // Reset the analog readings to 0
 for(int i=0; i<measurements; i++){ // Make multiple measurements to take average from, avoiding large fluctuations
-    readings += analogRead(A0); // Read the temperature sensor's output
+    readings += analogRead(A1); // Read the temperature sensor's output
   
     delay(250);
   }
@@ -149,17 +151,20 @@ for(int i=0; i<measurements; i++){ // Make multiple measurements to take average
 
 
 
-   float reading = analogRead(A0); 
-
-  float voltage = reading * (3.3/1024);               
+   float reading = analogRead(A1); 
+float voltage = reading * (3.3 / 1024.0);
+               
 
   Serial.print(voltage,2);  
 
   Serial.println(" volts");                          
 
+  // Convert the voltage into the temperature in Celsius:
+  float temperatureC = (voltage - 0.5) * 100;
+
  
 
-  float temperatureC = (voltage - 0.5) * 100; 
+ 
 
   Serial.print(temperature,1);  
 
